@@ -1,0 +1,40 @@
+{
+  "name": "Move Records Between Projects",
+  "namespace": "Vanderbilt\\MoveRecordsBetweenProjects",
+  "description": "Module to move records from one project to another using CSV to detail records to move. Deletes the original record if instructed.",
+  "authors": [
+    {
+      "name": "Ryan Moore",
+      "email": "datacore@vumc.org",
+      "institution": "Vanderbilt University Medical Center"
+    }
+  ],
+  "framework-version": 4,
+  "links": {
+    "project": [
+      {
+        "name": "Move Records",
+        "key": "moverecordmodulelink",
+        "icon": "fa-receipt",
+        "url": "interface/index.php",
+        "show-header-and-footer": false
+      }
+    ]
+  },
+  "permissions": [
+  ],
+  "no-auth-pages": [
+    "api"
+  ],
+  "system-settings": [
+  ],
+  "project-settings": [
+  ],
+  "log-file": "log.txt",
+  "compatibility": {
+    "php-version-min": "7.3.0",
+    "php-version-max": "",
+    "redcap-version-min": "10.0.0",
+    "redcap-version-max": ""
+  }
+}
