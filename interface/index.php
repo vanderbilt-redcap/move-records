@@ -44,6 +44,7 @@ if ($project_id != "" && is_numeric($project_id)) {
     /*echo "<pre>";
     print_r($loadedConfig);
     echo "</pre>";*/
+    $_SESSION['move_record_config'] = $loadedConfig;
 
     $logs = $module->loadModuleLogs($project_id);
 
@@ -57,6 +58,7 @@ if ($project_id != "" && is_numeric($project_id)) {
                 <input type='submit' name='import_submit' value='Submit' />
             </div>
         </form>
+        <div id='move_progress_status'><div id='move_progress'></div></div>
         <div id='move_results'></div>
         <div id='module_logs'>";
     echo "<table class='module-report-table'><tr><th>Source Project</th><th>Destination Project</th><th>User</th><th>Behavior</th><th>Start Process Time</th><th>End Process Time</th><th>Message</th></tr>";
@@ -81,36 +83,70 @@ if ($project_id != "" && is_numeric($project_id)) {
     table.module-report-table {
         width:100%;
     }
+    #move_progress_status {
+        width: 50%;
+        background-color: #ddd;
+        display:none;
+    }
+    #move_progress {
+        width: 1%;
+        height: 35px;
+        background-color: #4CAF50;
+        text-align: center;
+        line-height: 32px;
+        color: black;
+    }
+
 </style>
 <script>
-    let migrateConfig = <?php echo json_encode($loadedConfig); ?>;
-
-    function migrateRecord(recordCount,projects,records,events,fields,instances,dags,behavior) {
+    <?php
+    if (!empty($loadedConfig)) {
+        echo "let totalMigrations = ".count($loadedConfig['data']['0']['records']).";
+        $(document).ready(function () {
+            console.log('Start Time: '+Date.now());    
+            migrateRecord(0, 0, 100);
+        });";
+    }
+    ?>
+    function migrateRecord(projectCount,recordStart,stepCount) {
+        console.time('Execution Time');
         $.ajax({
             url: '<?php echo $module->getUrl('ajax_data.php'); ?>',
             method: 'post',
             data: {
-                projects: projects,
-                records: records[recordCount],
-                events: events,
-                fields: fields,
-                instances: instances,
-                behavior: behavior
+                'project_count': projectCount,
+                'record_start': recordStart,
+                'record_stop': (parseInt(recordStart) + parseInt(stepCount))
             },
             success: function (html) {
-                console.log(html);
-                recordCount++;
-                (records[recordCount] !== undefined && migrateRecord(recordCount,projects,records,events,fields,instances,behavior));
+                //console.log(html);
+                console.timeEnd('Execution Time');
+                if (html != "stop!!!!") {
+                    //$('#move_results').prepend(html);
+                    let recordCount = parseInt(recordStart) + parseInt(stepCount) + 1;
+                    update_progress(recordCount);
+                    migrateRecord(projectCount,recordCount,stepCount);
+                }
+                else {
+                    console.log("No more loops!");
+                    console.log('End Time: '+Date.now());
+                }
             }
         });
     }
-
-    $(document).ready(function() {
-        if (Array.isArray(migrateConfig['data'])) {
-            let configData = migrateConfig['data'];
-            for (var i = 0; i < configData.length; i++) {
-                migrateRecord(0,configData[i]['projects'],configData[i]['records'],configData[i]['events'],configData[i]['fields'],configData[i]['instances'],configData[i]['dags'],configData[i]['behavior'])
-            }
+    function update_progress(currentStep) {
+        var element = document.getElementById("move_progress");
+        var mainProgressDiv = document.getElementById("move_progress_status");
+        mainProgressDiv.style.display = 'block';
+        var width = parseFloat((parseFloat(currentStep) / parseFloat(totalMigrations)) * 100).toFixed(2);
+        console.log('Current: '+currentStep+', Total: '+totalMigrations);
+        if (width >= 100) {
+            mainProgressDiv.style.display = 'none';
+            element.style.width = '0%';
+            element.innerHTML = '0%';
+        } else {
+            element.style.width = width + '%';
+            element.innerHTML = width + '%';
         }
-    });
+    }
 </script>
