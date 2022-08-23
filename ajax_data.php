@@ -88,6 +88,9 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
     $results = \Records::saveData(array(
         'project_id'=>$destProject->project_id,'dataFormat'=>'array','data'=>$transferData,'overwriteBehavior'=>'overwrite'
     ));
+    echo "<pre>";
+    print_r($results);
+    echo "</pre>";
     $result = "";
 
     if (!empty($results['errors'])) {

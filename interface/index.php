@@ -119,7 +119,7 @@ if ($project_id != "" && is_numeric($project_id)) {
                 'record_stop': (parseInt(recordStart) + parseInt(stepCount))
             },
             success: function (html) {
-                //console.log(html);
+                console.log(html);
                 console.timeEnd('Execution Time');
                 if (html != "stop!!!!") {
                     //$('#move_results').prepend(html);
