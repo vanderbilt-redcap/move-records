@@ -51,6 +51,9 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
         'events' => array_keys($eventMapping), 'records'=> array_keys($recordList), 'exportDataAccessGroups' => true
     ));
 
+    echo "<pre>";
+    print_r($sourceData);
+    echo "</pre>";
     $transferData = array();
     foreach ($sourceData as $recordID => $eventData) {
         if (!isset($recordList[$recordID])) continue;
@@ -85,6 +88,9 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
             }
         }
     }
+    echo "<pre>";
+    print_r($transferData);
+    echo "</pre>";
     $results = \Records::saveData(array(
         'project_id'=>$destProject->project_id,'dataFormat'=>'array','data'=>$transferData,'overwriteBehavior'=>'overwrite'
     ));
