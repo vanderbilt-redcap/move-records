@@ -9,7 +9,7 @@ In each of these sections, the first column in the CSV file defines items in the
 Only the 'Projects' and 'Records' sections are required. All other sections have default behavior if they are left undefined. Below each of the sections and their behavior will be explained.
 
 ### Projects
-This section is required. The first column must be the REDCap project that will be the source of records to migrate. The second column must be the project which will be receiving the records.
+This section is required. The first column must be the REDCap project that will be the source of records to migrate. The second column must be the project which will be receiving the records. Projects are designated by their "Project ID", 
 
 ### Records
 This section is required. The column structure is the same as the 'Projects' section above. Each row in this section indicates another mapping of one record ID to another.
