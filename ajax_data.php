@@ -41,6 +41,37 @@ if (isset($_SESSION['move_record_config'])) {
 }
 echo $tableHTML;
 
+function copyEdoc($pid, $edocId)
+{
+    if(empty($edocId)){
+        // The stored id is already empty.
+        return '';
+    }
+
+    $sql = "select * from redcap_edocs_metadata where doc_id = ? and date_deleted_server is null";
+    $result = \ExternalModules\ExternalModules::query($sql, [$edocId]);
+    $row = $result->fetch_assoc();
+
+    if(!$row){
+        return '';
+    }
+
+    $row = \ExternalModules\ExternalModules::convertIntsToStrings($row);
+    $oldPid = $row['project_id'];
+    if($oldPid === $pid){
+        // This edoc is already associated with this project.  No need to recreate it.
+        $newEdocId = $edocId;
+    }
+    else{
+        $newEdocId = copyFile($edocId, $pid);
+    }
+
+    return [
+        $oldPid,
+        (string)$newEdocId // We must cast to a string to avoid an issue on the js side when it comes to handling file fields if stored as integers.
+    ];
+}
+
 function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fieldMapping,$eventMapping,$instanceMapping,$dagMapping,$behavior) {
     //TODO What happens in this if a file field is trying to be moved??
     $sourceProject = new \Project($sourceProjectID);
@@ -67,7 +98,13 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
                                 if (isset($fieldMapping[$subFieldName])) {
                                     if ($subFieldName == $destProject->table_pk) $subFieldValue = $destRecord;
                                     if ($subFieldName == "redcap_data_access_group" && isset($dagMapping[$subFieldValue])) $subFieldValue = $dagMapping[$subFieldValue];
-                                    $transferData[$destRecord][$eventID][$eventMapping[$subEventID]][$instrumentName][(!empty($instanceMapping) ? $instanceMapping[$instanceID] : $instanceID)][$fieldMapping[$subFieldName]] = $subFieldValue;
+                                    if ($sourceProject->metadata[$subFieldName]['element_type'] == "file" && $subFieldValue != "") {
+                                        list ($oldPID, $copyEdoc) = copyEdoc($destProjectID,$subFieldValue);
+                                        $transferData[$destRecord][$eventID][$eventMapping[$subEventID]][$instrumentName][(!empty($instanceMapping) ? $instanceMapping[$instanceID] : $instanceID)][$fieldMapping[$subFieldName]] = $copyEdoc;
+                                    }
+                                    else {
+                                        $transferData[$destRecord][$eventID][$eventMapping[$subEventID]][$instrumentName][(!empty($instanceMapping) ? $instanceMapping[$instanceID] : $instanceID)][$fieldMapping[$subFieldName]] = $subFieldValue;
+                                    }
                                 }
                             }
                         }
@@ -79,7 +116,13 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
                     if (isset($fieldMapping[$fieldName])) {
                         if ($fieldName == $destProject->table_pk) $fieldValue = $destRecord;
                         if ($fieldName == "redcap_data_access_group" && isset($dagMapping[$fieldValue])) $fieldValue = $dagMapping[$fieldValue];
-                        $transferData[$destRecord][$eventMapping[$eventID]][$fieldMapping[$fieldName]] = $fieldValue;
+                        if ($sourceProject->metadata[$subFieldName]['element_type'] == "file" && $fieldValue != "") {
+                            list ($oldPID, $copyEdoc) = copyEdoc($destProjectID,$fieldValue);
+                            $transferData[$destRecord][$eventMapping[$eventID]][$fieldMapping[$fieldName]] = $copyEdoc;
+                        }
+                        else {
+                            $transferData[$destRecord][$eventMapping[$eventID]][$fieldMapping[$fieldName]] = $fieldValue;
+                        }
                     }
                 }
             }
@@ -87,7 +130,7 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
     }
 
     $results = \Records::saveData(array(
-        'project_id'=>$destProject->project_id,'dataFormat'=>'array','data'=>$transferData,'overwriteBehavior'=>'overwrite'
+        'project_id'=>$destProject->project_id,'dataFormat'=>'array','data'=>$transferData,'overwriteBehavior'=>'overwrite','skipFileUploadFields'=>false
     ));
 
     $result = "";

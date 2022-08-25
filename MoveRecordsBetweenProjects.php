@@ -9,7 +9,15 @@ use REDCap;
 class MoveRecordsBetweenProjects extends AbstractExternalModule
 {
     function redcap_data_entry_form($project_id, $record, $instrument, $event_id, $group_id, $repeat_instance = 1) {
-
+        $sourceData = \Records::getData(array(
+            'return_format' => 'array', 'records' => array($record), 'projects' => array($project_id), 'fields' => array('isdocumentation'),
+            'exportDataAccessGroups' => true
+        ));
+        echo "<pre>";
+        print_r($sourceData);
+        echo "</pre>";
+        $hash = \Files::docIdHash("662");
+        echo "Hash is $hash<br/>";
     }
     function processConfiguration($project_id,$config) {
         $result = array();
