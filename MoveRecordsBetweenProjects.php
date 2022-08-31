@@ -11,7 +11,13 @@ class MoveRecordsBetweenProjects extends AbstractExternalModule
     function redcap_data_entry_form($project_id, $record, $instrument, $event_id, $group_id, $repeat_instance = 1) {
 
     }
-    function processConfiguration($project_id,$config) {
+
+    /*
+     * Formats a configuation file into an array for mapping between source and destination projects
+     * @param $config
+     * @return array
+     */
+    function processConfiguration($config) {
         $result = array();
 
         if (!$this->validConfiguration($config)) {
@@ -30,15 +36,8 @@ class MoveRecordsBetweenProjects extends AbstractExternalModule
                 $instanceMapping = $this->mapInstances($instances);
 
                 $result['data'][$index] = array('projects'=>$projects,'records'=>$records,'events'=>$eventMapping,'fields'=>$fieldMapping,'instances'=>$instanceMapping,'dags'=>$dagMapping,'behavior'=>$behavior);
-                foreach ($records as $pair) {
-                    //$result = $this->processRecordMigration($projects[0],$projects[1],$pair[0],$pair[1],$fieldMapping,$eventMapping,$instanceMapping,$dagMapping,$behavior);
-                }
+
                 $endDateTime = date("Y-m-d H:i:s");
-                $message = "Migration process was successful";
-                if (isset($result['errors'])) {
-                    $message = "Errors occurred during migration: ".implode("\n",$result['errors']);
-                }
-                $this->logProcess($project_id, $sourceProject->project_id, $destProject->project_id, $behavior, $startDateTime, $endDateTime, USERID,$message);
             }
         }
         return $result;

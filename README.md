@@ -35,6 +35,8 @@ This section is optional. It follows the same structure as the 'Records' section
 If no "Fields" section is defined, then the system will automatically match fields based on them having the same "Variable Name". Data will also only be migrated between fields if their field type is the same (ex: text box, radio). In the case of fields with options like checkbox or radio buttons, the available options for the fields must be the same.
 
 ### Behavior
-This section is optional. The available options are "delete" or "keep".
+This section is optional. The available options are "delete", "rename", "keep".
 
 If no "Behavior" section is defined, then the system will default to "delete". The "delete" behavior will delete the original record after it is migrated to the new project. The "keep" behavior will only move the record to its new project and leave the original record as it is.
+
+The "rename" option behaves a little differently from the other two options. This option will only change the record ID of an existing record. This process will ONLY accept a single project ID, and the "Records" section will have the first column as existing record IDs, with the second column indicating what the record should be renamed to. 

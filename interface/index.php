@@ -39,7 +39,7 @@ if ($project_id != "" && is_numeric($project_id)) {
     }
 
     if (!empty($configuration)) {
-        $loadedConfig = $module->processConfiguration($project_id, $configuration);
+        $loadedConfig = $module->processConfiguration($configuration);
     }
     /*echo "<pre>";
     print_r($loadedConfig);

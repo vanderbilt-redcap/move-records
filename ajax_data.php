@@ -11,7 +11,7 @@ if (isset($_SESSION['move_record_config'])) {
         $sourceProjectID = $configData[$projLoopCount]['projects'][0];
         $destProjectID = $configData[$projLoopCount]['projects'][1];
 
-        if (is_numeric($sourceProjectID) && is_numeric($destProjectID)) {
+        if (is_numeric($sourceProjectID) && (is_numeric($destProjectID) || $configData[$projLoopCount]['behavior'] == "rename")) {
             $events = $configData[$projLoopCount]['events'];
             $fields = $configData[$projLoopCount]['fields'];
             $instances = $configData[$projLoopCount]['instances'];
@@ -28,7 +28,12 @@ if (isset($_SESSION['move_record_config'])) {
                 }
             }
             if (!empty($recordList)) {
-                $tableHTML .= processRecordMigration($sourceProjectID, $destProjectID, $recordList, $fields, $events, $instances, $dags, $behavior);
+                if ($behavior == "rename") {
+                    $tableHTML .= renameRecordList($sourceProjectID, $recordList);
+                }
+                else {
+                    $tableHTML .= processRecordMigration($sourceProjectID, $destProjectID, $recordList, $fields, $events, $instances, $dags, $behavior);
+                }
             }
         }
         else {
@@ -158,4 +163,20 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
     }
 
     return ($result != "" ? $result."<br/>" : "");
+}
+
+function renameRecordList($project_id, $recordList) {
+    $returnString = "";
+    if (is_array($recordList)) {
+        foreach ($recordList as $oldRecord => $newRecord) {
+            if (\REDCap::renameRecord($project_id,$oldRecord,$newRecord)) {
+                $returnString .= "Record $oldRecord was renamed to $newRecord<br/>";
+            }
+            else {
+                $returnString .= "There was an issue renaming record $oldRecord to $newRecord<br/>";
+                echo \REDCap::renameRecord($project_id,$oldRecord,$newRecord)."<br/>";
+            }
+        }
+    }
+    return $returnString;
 }
