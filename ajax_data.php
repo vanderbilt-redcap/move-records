@@ -221,18 +221,17 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
 
     // Need to log if any errors occur during migration
     if (!empty($results['errors'])) {
-        $result .= "There was an error migrating records, following errors provided: ".var_dump($results['errors'])."<br/>";
+        $result .= "There was an error migrating records, following errors provided: ".(is_array($results['errors']) ? implode(", ",$results['errors']) : $results['errors'])."<br/>";
     }
     // If the ids list is empty then records weren't migrated
     elseif (empty($results['ids'])) {
-        $result .= "Record migration was unsuccessful for records: ".var_dump(array_keys($sourceData));
+        $result .= "Record migration was unsuccessful for records: ".implode(", ",(array_keys($sourceData)));
     }
     else {
         // Loop through record IDs that were saved and track them in logging
         foreach ($results['ids'] as $destRecord) {
             $checking = \REDCap::getData(array('project_id' => $destProject->project_id, 'records' => array($destRecord), 'fields' => array($destProject->table_pk), 'return_format' => 'array'));
             if (isset($checking[$destRecord])) {
-                $result .= "Migration of $recordID to $destRecord was successful<br/>";
                 // If set to delete original record upon migration, verify it exists then delete the original
                 if ($behavior == "delete" && empty($results['errors']) && $results['ids'][$destRecord] == $destRecord) {
                     //TODO Is the check for record existing necessary or does it use too much processing time??
@@ -245,7 +244,7 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
         }
     }
 
-    return ($result != "" ? $result."<br/>" : "");
+    return ($result != "" ? $result : "");
 }
 
 /*

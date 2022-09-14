@@ -27,7 +27,7 @@ class MoveRecordsBetweenProjects extends AbstractExternalModule
 
         // Make sure that the configuration file is valid and provide an error message if not
         if (!$this->validConfiguration($config)) {
-            $result['errors'][] = "A valid configuration was not provided. Please make sure there are at least a 'Projects' and 'Records' section to your CSV file.";
+            $result['errors'][] = "Migration Error: A valid configuration was not provided. Please make sure there are at least a 'Projects' and 'Records' section to your CSV file.";
         }
         else {
             // Loop through projects in the configuration file and create the mappings for their various properties.

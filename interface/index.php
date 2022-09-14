@@ -80,7 +80,7 @@ if ($project_id != "" && is_numeric($project_id)) {
             </div>
         </form>
         <div id='move_progress_status'><div id='move_progress'></div></div>
-        <div id='move_results' style='display:none;'>";
+        <div id='move_results'>";
         if (!empty($loadedConfig['errors'])) {
             echo implode("<br/>",$loadedConfig['errors']);
         }
@@ -126,6 +126,13 @@ if ($project_id != "" && is_numeric($project_id)) {
 
 </style>
 <script>
+    let currentdate = new Date();
+    let startTime = currentdate.getDate() + '-'
+        + (currentdate.getMonth()+1)  + '-'
+        + currentdate.getFullYear() + ' '
+        + currentdate.getHours() + ':'
+        + currentdate.getMinutes() + ':'
+        + currentdate.getSeconds();
     <?php
         // If processing an uploaded configuration file, run the Javascript to start the AJAX process
     if (!empty($loadedConfig) && empty($loadedConfig['errors'])) {
@@ -136,7 +143,14 @@ if ($project_id != "" && is_numeric($project_id)) {
         });";
     }
     elseif (!empty($loadedConfig['errors'])) {
-        echo "storeLogging();";
+        echo "currentdate = new Date(); 
+        let endTime = currentdate.getDate() + '-'
+                + (currentdate.getMonth()+1)  + '-' 
+                + currentdate.getFullYear() + ' '  
+                + currentdate.getHours() + ':'  
+                + currentdate.getMinutes() + ':' 
+                + currentdate.getSeconds();
+        storeLogging(startTime,endTime);";
     }
     ?>
     // Function to handle batches of record migrations. Self-referencing in a loop as it migrates records in groups.
@@ -155,12 +169,23 @@ if ($project_id != "" && is_numeric($project_id)) {
                 console.timeEnd('Execution Time');
                 // When the AJAX page has reached the end of records to migrate, it passes the magic phrase to end the loop
                 if (html != "stop!!!!") {
+                    if (html != "") {
+                        $('#move_results').prepend(html);
+                    }
                     // Increment the loop to the next batch of records
                     let recordCount = parseInt(recordStart) + parseInt(stepCount) + 1;
                     update_progress(recordCount);
                     migrateRecord(projectCount,recordCount,stepCount);
                 }
                 else {
+                    currentdate = new Date();
+                    let endTime = currentdate.getDate() + '-'
+                        + (currentdate.getMonth()+1)  + '-'
+                        + currentdate.getFullYear() + ' '
+                        + currentdate.getHours() + ':'
+                        + currentdate.getMinutes() + ':'
+                        + currentdate.getSeconds();
+                    storeLogging(startTime,endTime);
                     console.log("No more loops!");
                     console.log('End Time: '+Date.now());
                 }
@@ -185,7 +210,20 @@ if ($project_id != "" && is_numeric($project_id)) {
         }
     }
 
-    function storeLogging() {
+    function storeLogging(startTime,endTime) {
         let logElement = document.getElementById('move_results');
+
+        $.ajax({
+            url: '<?php echo $module->getUrl('create_logs.php'); ?>',
+            method: 'post',
+            data: {
+                'log_html': logElement.innerHTML,
+                'start_time': startTime,
+                'end_time': endTime
+            },
+            success: function (html) {
+                console.log(html);
+            }
+        });
     }
 </script>
