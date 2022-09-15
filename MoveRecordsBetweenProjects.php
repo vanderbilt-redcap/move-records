@@ -302,6 +302,6 @@ class MoveRecordsBetweenProjects extends AbstractExternalModule
         while ($row = db_fetch_assoc($logs)) {
             $returnArray[] = $row;
         }
-        return $returnArray;
+        return array_reverse($returnArray);
     }
 }
