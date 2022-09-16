@@ -221,7 +221,7 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
 
     // Need to log if any errors occur during migration
     if (!empty($results['errors'])) {
-        $result .= "There was an error migrating records, following errors provided: ".(is_array($results['errors']) ? implode(", ",$results['errors']) : $results['errors'])."<br/>";
+        $result .= "There was an error migrating records in batch ".$recordList[0]." to ".$recordList[count($recordList) - 1].", following errors provided: ".(is_array($results['errors']) ? implode(", ",$results['errors']) : $results['errors'])."<br/>";
     }
     // If the ids list is empty then records weren't migrated
     elseif (empty($results['ids'])) {
@@ -255,17 +255,16 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
  * */
 function renameRecordList($project_id, $recordList) {
     $returnString = "";
+
     if (is_array($recordList)) {
         foreach ($recordList as $oldRecord => $newRecord) {
             // The renameRecord function
-            if (\REDCap::renameRecord($project_id,$oldRecord,$newRecord)) {
-                $returnString .= "Record $oldRecord was renamed to $newRecord<br/>";
-            }
-            else {
+            if (!\REDCap::renameRecord($project_id,$oldRecord,$newRecord)) {
                 $returnString .= "There was an issue renaming record $oldRecord to $newRecord<br/>";
             }
         }
     }
+
     return $returnString;
 }
 ?>

@@ -178,6 +178,9 @@ if ($project_id != "" && is_numeric($project_id)) {
                     migrateRecord(projectCount,recordCount,stepCount);
                 }
                 else {
+                    if ($('#move_results').is(':empty')) {
+                        $('#move_results').prepend("Record migration process has completed.<br/>");
+                    }
                     currentdate = new Date();
                     let endTime = currentdate.getDate() + '-'
                         + (currentdate.getMonth()+1)  + '-'
