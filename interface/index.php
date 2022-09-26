@@ -74,19 +74,21 @@ if ($project_id != "" && is_numeric($project_id)) {
     echo "<div id='move_dashboard'>
         <form enctype='multipart/form-data' action='".$module->getUrl('interface/index.php')."' method='post' id='import_settings_form' name='import_settings_form'>
             <span><h5 style='color:red;text-align:center'>It is recommended that you back up the data in the projects involved before performing migration.</h5></span>
-            <div id='ui_elements'>
+            <div id='ui_elements' style='border:1px black solid;padding:10px;'>
+                <h5>Upload Configuration File to Begin Migration Process</h5>
                 <input type='file' name='import_file' accept='.csv' />
                 <input type='submit' name='import_submit' value='Submit' />
             </div>
         </form>
-        <div id='move_progress_status'><div id='move_progress'></div></div>
+        <div id='move_progress_status'><div style='width:100%;background-color: white;'>Record Migration Progress:</div><div id='move_progress'></div></div></div>
         <div id='move_results'>";
         if (!empty($loadedConfig['errors'])) {
             echo implode("<br/>",$loadedConfig['errors']);
         }
         echo "</div>
-        <div id='module_logs'>";
-    echo "<table class='module-report-table'><tr><th>Source Project</th><th>Destination Project</th><th>User</th><th>Behavior</th><th>Start Process Time</th><th>End Process Time</th><th>Message</th></tr>";
+        <div id='module_logs' style='margin-top:15px;'>
+            <h5>Logs of Previous Migration Attempts</h5>
+            <table class='module-report-table'><tr><th>Source Project</th><th>Destination Project</th><th>User</th><th>Behavior</th><th>Start Process Time</th><th>End Process Time</th><th>Message</th></tr>";
         foreach ($logs as $log) {
             // Linking to the Logging page for the affected REDCap project. Provides some filters to try to narrow down to the
             // approximate timeframe and situation to make sure it loads for projects with huge amounts of logging.
@@ -108,12 +110,14 @@ if ($project_id != "" && is_numeric($project_id)) {
         text-align:center;
     }
     table.module-report-table {
-        width:100%;
+        width:95%;
+        margin-left:5px;
     }
     #move_progress_status {
         width: 50%;
         background-color: #ddd;
         display:none;
+        margin-top:15px;
     }
     #move_progress {
         width: 1%;

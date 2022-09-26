@@ -221,11 +221,11 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
 
     // Need to log if any errors occur during migration
     if (!empty($results['errors'])) {
-        $result .= "There was an error migrating records in batch ".$recordList[0]." to ".$recordList[count($recordList) - 1].", following errors provided: ".(is_array($results['errors']) ? implode(", ",$results['errors']) : $results['errors'])."<br/>";
+        $result .= "There was an error migrating records in batch ".array_key_first($recordList)." to ".array_key_last($recordList).", following errors provided: ".(is_array($results['errors']) ? implode(", ",$results['errors']) : $results['errors'])."<br/>";
     }
     // If the ids list is empty then records weren't migrated
     elseif (empty($results['ids'])) {
-        $result .= "Record migration was unsuccessful for records: ".implode(", ",(array_keys($sourceData)));
+        $result .= "Record migration was unsuccessful for records ".array_key_first($recordList)." to ".array_key_last($recordList)."<br/>";
     }
     else {
         // Loop through record IDs that were saved and track them in logging
