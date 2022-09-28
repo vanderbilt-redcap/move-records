@@ -229,13 +229,13 @@ function processRecordMigration($sourceProjectID,$destProjectID,$recordList,$fie
     }
     else {
         // Loop through record IDs that were saved and track them in logging
-        foreach ($results['ids'] as $destRecord) {
+        foreach ($recordList as $srcRecord => $destRecord) {
             $checking = \REDCap::getData(array('project_id' => $destProject->project_id, 'records' => array($destRecord), 'fields' => array($destProject->table_pk), 'return_format' => 'array'));
             if (isset($checking[$destRecord])) {
                 // If set to delete original record upon migration, verify it exists then delete the original
-                if ($behavior == "delete" && empty($results['errors']) && $results['ids'][$destRecord] == $destRecord) {
+                if ($behavior == "delete" && empty($results['errors']) && in_array($destRecord,$results['ids'])) {
                     //TODO Is the check for record existing necessary or does it use too much processing time??
-                    $deletion = \REDCap::deleteRecord($sourceProject->project_id, $recordID);
+                    $deletion = \REDCap::deleteRecord($sourceProject->project_id, $srcRecord);
                 }
             }
             else {
